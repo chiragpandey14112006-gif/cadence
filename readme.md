@@ -39,8 +39,8 @@ No build step, backend, or package installation is required.
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/chiragpandey14112006-gif/cadence-interview-coach.git
-   cd cadence-interview-coach
+   git clone https://github.com/chiragpandey14112006-gif/cadence.git
+   cd cadence
    ```
 
 2. Open `interview_coach.html` directly in any modern browser, or serve it locally:
