@@ -87,6 +87,10 @@ Cadence works offline by default. To enable live AI evaluation:
 
 - **Add or edit questions:** Update the `TRACKS` object in the `<script>` section of `interview_coach.html` with your own `prompt`, `signals`, `hint`, `probe`, and `outline` entries.
 - **Adjust rubric weights:** Edit the weighted formula inside `evaluateOffline()` to tune scoring for your target roles.
+<img width="1885" height="1062" alt="{C06DE3EC-18D3-4A60-BB62-7FBABCEFA034}" src="https://github.com/user-attachments/assets/a75e23d7-8ec1-49a1-b3b2-6551b5c8e277" />
+
+
+
 
 ## Author
 
