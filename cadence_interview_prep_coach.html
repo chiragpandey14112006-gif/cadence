@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadence — Interview Prep Coach</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      --bg-canvas: #FAF9F6;
+      --bg-surface: #FFFFFF;
+      --bg-subtle: #F2F0EA;
+      --border-hairline: #E5E2D9;
+      --text-primary: #161614;
+      --text-secondary: #5E5C56;
+      --text-muted: #8A877F;
+      --accent: #0F5C4A;
+      --accent-hover: #0B4739;
+      --accent-soft: #E6F2EE;
+      --warn: #B45309;
+      --warn-soft: #FEF3C7;
+      --danger: #B91C1C;
+      --danger-soft: #FEE2E2;
+    }
+
+    html.dark {
+      --bg-canvas: #111110;
+      --bg-surface: #191917;
+      --bg-subtle: #22221F;
+      --border-hairline: #2C2C28;
+      --text-primary: #F3F2EC;
+      --text-secondary: #A8A69E;
+      --text-muted: #76746C;
+      --accent: #2EA084;
+      --accent-hover: #3BB396;
+      --accent-soft: rgba(46, 160, 132, 0.14);
+      --warn: #F59E0B;
+      --warn-soft: rgba(245, 158, 11, 0.14);
+      --danger: #F87171;
+      --danger-soft: rgba(248, 113, 113, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      margin: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .surface {
+      background-color: var(--bg-surface);
+      border-color: var(--border-hairline);
+    }
+
+    .subtle {
+      background-color: var(--bg-subtle);
+      border-color: var(--border-hairline);
+    }
+
+    .hairline {
+      border-color: var(--border-hairline);
+    }
+
+    .text-main { color: var(--text-primary); }
+    .text-sub { color: var(--text-secondary); }
+    .text-faint { color: var(--text-muted); }
+
+    .btn-accent {
+      background-color: var(--accent);
+      color: #FFFFFF;
+      transition: background-color 150ms ease, transform 100ms ease;
+    }
+    .btn-accent:hover:not(:disabled) {
+      background-color: var(--accent-hover);
+    }
+    .btn-accent:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .chip-active {
+      background-color: var(--accent-soft);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    /* Subtle custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-hairline);
+      border-radius: 999px;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .msg-enter {
+      animation: fadeUp 180ms ease-out forwards;
+    }
+
+    @keyframes pulseDot {
+      0%, 80%, 100% { opacity: 0.25; transform: scale(0.85); }
+      40% { opacity: 1; transform: scale(1); }
+    }
+    .typing-dot {
+      animation: pulseDot 1.2s infinite ease-in-out both;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.16s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.32s; }
+  </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col">
+
+  <!-- Top Header -->
+  <header class="surface border-b h-14 px-3 sm:px-5 flex items-center justify-between shrink-0 z-20">
+    <div class="flex items-center gap-2.5 min-w-0">
+      <button id="btn-toggle-sidebar" type="button" aria-label="Toggle sidebar"
+        class="lg:hidden p-2 -ml-1 rounded-lg hover:opacity-80 subtle border">
+        <i data-lucide="panel-left" class="w-4 h-4 text-main"></i>
+      </button>
+      <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style="background-color: var(--accent); color: #fff;">
+        <svg viewBox="0 0 24 24" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v18M5 8v8M19 8v8M8.5 5.5v13M15.5 5.5v13"/>
+        </svg>
+      </div>
+      <div class="flex items-baseline gap-2 min-w-0">
+        <span class="font-semibold tracking-tight text-sm sm:text-base text-main truncate">Cadence</span>
+        <span id="header-track-badge" class="hidden sm:inline-block text-xs px-2 py-0.5 rounded-full subtle border text-sub truncate">Behavioral (STAR)</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+      <div id="engine-pill" class="hidden md:flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full subtle border text-sub">
+        <span class="w-1.5 h-1.5 rounded-full" style="background-color: var(--accent);"></span>
+        <span id="engine-label">Built-in Coach</span>
+      </div>
+      <button id="btn-debrief" type="button"
+        class="text-xs sm:text-sm font-medium px-2.5 sm:px-3 py-1.5 rounded-lg subtle border text-main hover:opacity-85 flex items-center gap-1.5">
+        <i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i>
+        <span class="hidden sm:inline">Debrief</span>
+        <span id="debrief-count" class="mono text-[11px] px-1.5 py-0.2 rounded-full" style="background-color: var(--accent-soft); color: var(--accent);">0</span>
+      </button>
+      <button id="btn-settings" type="button" aria-label="Settings and API key"
+        class="p-2 rounded-lg subtle border text-sub hover:text-main">
+        <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+      </button>
+      <button id="btn-theme" type="button" aria-label="Toggle dark mode"
+        class="p-2 rounded-lg subtle border text-sub hover:text-main">
+        <i id="theme-icon" data-lucide="moon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <div class="flex-1 flex min-h-0 relative">
+
+    <!-- Mobile Backdrop -->
+    <div id="sidebar-backdrop" class="hidden fixed inset-0 bg-black/40 z-30 lg:hidden"></div>
+
+    <!-- Left Rail: Session Setup & Live Scorecard -->
+    <aside id="sidebar"
+      class="surface border-r w-72 shrink-0 flex flex-col fixed lg:static inset-y-0 left-0 z-40 transform -translate-x-full lg:translate-x-0 transition-transform duration-200">
+      <div class="p-4 border-b hairline flex items-center justify-between lg:hidden">
+        <span class="font-semibold text-sm text-main">Session Controls</span>
+        <button id="btn-close-sidebar" type="button" class="p-1.5 rounded-lg subtle border text-sub">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-4 space-y-5">
+        <!-- Track Selector -->
+        <section>
+          <label class="block text-[11px] font-semibold uppercase tracking-wider text-faint mb-2">Interview Track</label>
+          <div id="track-list" class="space-y-1.5"></div>
+        </section>
+
+        <!-- Difficulty & Mode -->
+        <section class="space-y-3">
+          <div>
+            <label class="block text-[11px] font-semibold uppercase tracking-wider text-faint mb-1.5">Level</label>
+            <div id="level-group" class="grid grid-cols-3 gap-1 p-1 rounded-lg subtle border">
+              <button type="button" data-level="entry" class="level-btn text-xs py-1.5 rounded-md font-medium transition">Entry</button>
+              <button type="button" data-level="mid" class="level-btn text-xs py-1.5 rounded-md font-medium transition">Mid</button>
+              <button type="button" data-level="senior" class="level-btn text-xs py-1.5 rounded-md font-medium transition">Senior</button>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold uppercase tracking-wider text-faint mb-1.5">Session Mode</label>
+            <div id="mode-group" class="grid grid-cols-2 gap-1 p-1 rounded-lg subtle border">
+              <button type="button" data-mode="practice" class="mode-btn text-xs py-1.5 rounded-md font-medium transition">Practice</button>
+              <button type="button" data-mode="mock" class="mode-btn text-xs py-1.5 rounded-md font-medium transition">Mock (5 Qs)</button>
+            </div>
+            <p id="mode-hint" class="text-[11px] text-faint mt-1.5 leading-snug">Hints enabled with immediate rubric feedback after every answer.</p>
+          </div>
+        </section>
+
+        <!-- Target Role -->
+        <section>
+          <label for="input-role" class="block text-[11px] font-semibold uppercase tracking-wider text-faint mb-1.5">Target Role</label>
+          <input id="input-role" type="text" value="Software Engineer" placeholder="e.g. ML Engineer, SWE Intern"
+            class="w-full text-xs px-3 py-2 rounded-lg subtle border text-main focus:outline-none focus:ring-1"
+            style="--tw-ring-color: var(--accent);" />
+        </section>
+
+        <!-- Live Rubric Breakdown -->
+        <section class="p-3.5 rounded-xl subtle border space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-faint">Session Score</span>
+            <span id="avg-score-badge" class="mono text-sm font-semibold text-main">--</span>
+          </div>
+
+          <div class="space-y-2.5 text-xs">
+            <div>
+              <div class="flex justify-between text-sub mb-1"><span>Structure</span><span id="bar-val-structure" class="mono">--</span></div>
+              <div class="h-1.5 rounded-full overflow-hidden" style="background-color: var(--border-hairline);">
+                <div id="bar-structure" class="h-full rounded-full transition-all duration-300" style="width: 0%; background-color: var(--accent);"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sub mb-1"><span>Depth &amp; Signal</span><span id="bar-val-depth" class="mono">--</span></div>
+              <div class="h-1.5 rounded-full overflow-hidden" style="background-color: var(--border-hairline);">
+                <div id="bar-depth" class="h-full rounded-full transition-all duration-300" style="width: 0%; background-color: var(--accent);"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sub mb-1"><span>Specificity</span><span id="bar-val-specificity" class="mono">--</span></div>
+              <div class="h-1.5 rounded-full overflow-hidden" style="background-color: var(--border-hairline);">
+                <div id="bar-specificity" class="h-full rounded-full transition-all duration-300" style="width: 0%; background-color: var(--accent);"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sub mb-1"><span>Clarity</span><span id="bar-val-clarity" class="mono">--</span></div>
+              <div class="h-1.5 rounded-full overflow-hidden" style="background-color: var(--border-hairline);">
+                <div id="bar-clarity" class="h-full rounded-full transition-all duration-300" style="width: 0%; background-color: var(--accent);"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Custom Question & Reset -->
+        <section class="space-y-2 pt-1">
+          <button id="btn-custom-q" type="button"
+            class="w-full text-xs font-medium py-2 px-3 rounded-lg subtle border text-main hover:opacity-85 flex items-center justify-center gap-1.5">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            Practice Custom Question
+          </button>
+          <button id="btn-new-session" type="button"
+            class="w-full text-xs font-medium py-2 px-3 rounded-lg border hairline text-sub hover:text-main flex items-center justify-center gap-1.5">
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+            Reset Session
+          </button>
+        </section>
+      </div>
+    </aside>
+
+    <!-- Chat Area -->
+    <main class="flex-1 flex flex-col min-w-0 min-h-0">
+      <!-- Sub-bar: Current Question Meta & Timer -->
+      <div class="border-b hairline px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3 shrink-0" style="background-color: var(--bg-canvas);">
+        <div class="flex items-center gap-2 min-w-0">
+          <span id="q-counter" class="mono text-xs font-medium px-2 py-0.5 rounded subtle border text-sub shrink-0">Q1</span>
+          <span id="q-topic-label" class="text-xs text-sub truncate">Leadership &amp; Ownership</span>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg subtle border">
+            <i data-lucide="timer" class="w-3.5 h-3.5 text-faint"></i>
+            <span id="timer-display" class="mono text-xs font-medium text-main">00:00</span>
+            <button id="btn-timer-toggle" type="button" class="text-[11px] font-medium pl-1.5 border-l hairline text-sub hover:text-main">Start</button>
+            <button id="btn-timer-reset" type="button" aria-label="Reset timer" class="text-faint hover:text-main">
+              <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages Stream -->
+      <div id="chat-stream" class="flex-1 overflow-y-auto px-4 sm:px-6 py-5 space-y-5">
+        <div id="chat-inner" class="max-w-3xl mx-auto space-y-5"></div>
+      </div>
+
+      <!-- Composer -->
+      <div class="border-t hairline px-4 sm:px-6 py-3.5 shrink-0" style="background-color: var(--bg-canvas);">
+        <div class="max-w-3xl mx-auto space-y-2.5">
+          <!-- Quick Coaching Actions -->
+          <div id="quick-actions" class="flex flex-wrap items-center gap-1.5">
+            <button id="btn-hint" type="button"
+              class="text-xs px-2.5 py-1 rounded-full subtle border text-sub hover:text-main flex items-center gap-1">
+              <i data-lucide="lightbulb" class="w-3 h-3"></i> Hint
+            </button>
+            <button id="btn-probe" type="button"
+              class="text-xs px-2.5 py-1 rounded-full subtle border text-sub hover:text-main flex items-center gap-1">
+              <i data-lucide="message-circle-question" class="w-3 h-3"></i> Follow-up Probe
+            </button>
+            <button id="btn-next-q" type="button"
+              class="text-xs px-2.5 py-1 rounded-full subtle border text-sub hover:text-main flex items-center gap-1">
+              <i data-lucide="arrow-right" class="w-3 h-3"></i> Next Question
+            </button>
+            <button id="btn-sample" type="button"
+              class="text-xs px-2.5 py-1 rounded-full subtle border text-sub hover:text-main flex items-center gap-1">
+              <i data-lucide="book-open" class="w-3 h-3"></i> Model Outline
+            </button>
+            <span id="word-count-pill" class="ml-auto mono text-[11px] text-faint">0 words</span>
+          </div>
+
+          <!-- Input Box -->
+          <form id="chat-form" class="surface border rounded-xl p-2 flex items-end gap-2 shadow-sm focus-within:ring-1" style="--tw-ring-color: var(--accent);">
+            <textarea id="answer-input" rows="2" placeholder="Type your interview answer here... (Shift+Enter for new line, Enter to submit)"
+              class="flex-1 bg-transparent resize-none px-2 py-1.5 text-sm text-main placeholder:text-[var(--text-muted)] focus:outline-none max-h-44"></textarea>
+            <div class="flex items-center gap-1.5 shrink-0 pb-0.5">
+              <button id="btn-mic" type="button" title="Voice input" aria-label="Voice input"
+                class="p-2 rounded-lg subtle border text-sub hover:text-main">
+                <i data-lucide="mic" class="w-4 h-4"></i>
+              </button>
+              <button id="btn-send" type="submit"
+                class="btn-accent px-3.5 py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center gap-1.5">
+                <span>Submit</span>
+                <i data-lucide="send" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Settings Modal (Optional Live LLM API) -->
+  <div id="modal-settings" class="hidden fixed inset-0 z-50 bg-black/45 flex items-center justify-center p-4">
+    <div class="surface border rounded-2xl w-full max-w-md p-5 space-y-4 shadow-xl">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-semibold text-main">Coach Engine Settings</h2>
+          <p class="text-xs text-sub mt-0.5">Works offline by default. Optionally connect an API key for live AI evaluation.</p>
+        </div>
+        <button id="btn-close-settings" type="button" class="p-1.5 rounded-lg subtle border text-sub">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label for="select-provider" class="block text-xs font-medium text-sub mb-1">Response Engine</label>
+          <select id="select-provider" class="w-full text-sm px-3 py-2 rounded-lg subtle border text-main focus:outline-none">
+            <option value="builtin">Built-in Offline Coach (No API key needed)</option>
+            <option value="gemini">Google Gemini API (gemini-2.5-flash)</option>
+            <option value="openai">OpenAI API (gpt-4o-mini)</option>
+          </select>
+        </div>
+
+        <div id="api-key-wrap" class="hidden space-y-1.5">
+          <label for="input-api-key" class="block text-xs font-medium text-sub">API Key</label>
+          <input id="input-api-key" type="password" placeholder="Paste your API key..."
+            class="w-full text-sm px-3 py-2 rounded-lg subtle border text-main focus:outline-none" />
+          <p class="text-[11px] text-faint">Stored only in your browser session. Falls back to the built-in coach if a request fails.</p>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t hairline">
+        <button id="btn-cancel-settings" type="button" class="text-xs font-medium px-3.5 py-2 rounded-lg subtle border text-sub">Cancel</button>
+        <button id="btn-save-settings" type="button" class="btn-accent text-xs font-medium px-4 py-2 rounded-lg">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Question Modal -->
+  <div id="modal-custom" class="hidden fixed inset-0 z-50 bg-black/45 flex items-center justify-center p-4">
+    <div class="surface border rounded-2xl w-full max-w-md p-5 space-y-4 shadow-xl">
+      <div class="flex items-center justify-between">
+        <h2 class="text-base font-semibold text-main">Practice a Custom Question</h2>
+        <button id="btn-close-custom" type="button" class="p-1.5 rounded-lg subtle border text-sub">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="space-y-3">
+        <div>
+          <label for="input-custom-q" class="block text-xs font-medium text-sub mb-1">Question Prompt</label>
+          <textarea id="input-custom-q" rows="3" placeholder="e.g. Tell me about a technical decision you made with incomplete data."
+            class="w-full text-sm px-3 py-2 rounded-lg subtle border text-main focus:outline-none resize-none"></textarea>
+        </div>
+        <div>
+          <label for="input-custom-keywords" class="block text-xs font-medium text-sub mb-1">Key Topics to Cover (comma-separated, optional)</label>
+          <input id="input-custom-keywords" type="text" placeholder="e.g. trade-offs, latency, metrics, rollback"
+            class="w-full text-sm px-3 py-2 rounded-lg subtle border text-main focus:outline-none" />
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 pt-2 border-t hairline">
+        <button id="btn-cancel-custom" type="button" class="text-xs font-medium px-3.5 py-2 rounded-lg subtle border text-sub">Cancel</button>
+        <button id="btn-add-custom" type="button" class="btn-accent text-xs font-medium px-4 py-2 rounded-lg">Ask This Question</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Session Debrief Modal -->
+  <div id="modal-debrief" class="hidden fixed inset-0 z-50 bg-black/45 flex items-center justify-center p-4">
+    <div class="surface border rounded-2xl w-full max-w-xl max-h-[85vh] flex flex-col shadow-xl">
+      <div class="p-5 border-b hairline flex items-center justify-between shrink-0">
+        <div>
+          <h2 class="text-base font-semibold text-main">Interview Session Debrief</h2>
+          <p id="debrief-subtitle" class="text-xs text-sub mt-0.5">Summary of your evaluated answers</p>
+        </div>
+        <button id="btn-close-debrief" type="button" class="p-1.5 rounded-lg subtle border text-sub">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div id="debrief-body" class="p-5 overflow-y-auto space-y-4 text-sm"></div>
+      <div class="p-4 border-t hairline flex items-center justify-between gap-2 shrink-0">
+        <button id="btn-copy-debrief" type="button" class="text-xs font-medium px-3.5 py-2 rounded-lg subtle border text-main flex items-center gap-1.5">
+          <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy Markdown Report
+        </button>
+        <button id="btn-done-debrief" type="button" class="btn-accent text-xs font-medium px-4 py-2 rounded-lg">Back to Session</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="hidden fixed bottom-5 right-5 z-50 px-3.5 py-2.5 rounded-xl text-xs font-medium shadow-lg border"
+    style="background-color: var(--text-primary); color: var(--bg-canvas); border-color: var(--border-hairline);"></div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      // ---------- Curated Question Bank ----------
+      const TRACKS = {
+        behavioral: {
+          id: "behavioral",
+          name: "Behavioral (STAR)",
+          short: "Behavioral",
+          icon: "users",
+          framework: "Situation → Task → Action → Result",
+          targetWords: [90, 240],
+          questions: [
+            {
+              id: "beh-1",
+              topic: "Ownership & Debugging",
+              prompt: "Tell me about a time a project or feature broke right before a deadline. How did you handle it, and what changed afterward?",
+              signals: ["situation", "deadline", "root cause", "debug", "fix", "team", "communicated", "prevent", "test", "postmortem", "result", "learned"],
+              hint: "Use STAR: spend ~20% on the context, ~60% on the exact actions YOU took (not just 'we'), and close with a concrete outcome plus what process you improved.",
+              probe: "If you had to redo that incident today, what single early warning sign would you catch sooner?",
+              outline: [
+                "Situation & Task: Name the project, the deadline, and what broke.",
+                "Action: Walk through how you isolated the root cause, communicated scope/risk to stakeholders, and shipped a safe fix.",
+                "Result: Share the delivery outcome (e.g., shipped on time, zero regressions) and the safeguard you added afterward."
+              ]
+            },
+            {
+              id: "beh-2",
+              topic: "Disagreement & Alignment",
+              prompt: "Describe a time you disagreed with a teammate or manager on a technical or product decision. How did you resolve it?",
+              signals: ["disagreed", "perspective", "data", "trade-off", "prototype", "listened", "aligned", "compromise", "outcome", "metric", "respect"],
+              hint: "Show low ego and high rigor: explain their point of view fairly, how you brought evidence or a small experiment, and how you committed to the final call.",
+              probe: "What if the data had supported their approach instead of yours—how do you handle disagree-and-commit?",
+              outline: [
+                "Context: State both positions clearly without painting the other person as unreasonable.",
+                "Action: Explain how you grounded the debate in shared goals, benchmarks, or a quick spike.",
+                "Result: Highlight the final decision, the measurable impact, and how the working relationship stayed strong."
+              ]
+            },
+            {
+              id: "beh-3",
+              topic: "Ambiguity & Initiative",
+              prompt: "Tell me about a time you had to build or solve something with very unclear requirements.",
+              signals: ["ambiguous", "clarified", "stakeholder", "assumptions", "mvp", "iterated", "feedback", "scope", "delivered", "impact"],
+              hint: "Interviewers look for how you turn fuzziness into milestones: listing assumptions, talking to users/stakeholders, and shipping an early checkpoint.",
+              probe: "Which assumption turned out to be wrong once you showed the first version?",
+              outline: [
+                "Situation: Describe what was undefined and why it mattered.",
+                "Action: Show how you framed questions, proposed a scoped v1, and validated early with feedback.",
+                "Result: Quantify adoption, time saved, or clarity created for the team."
+              ]
+            },
+            {
+              id: "beh-4",
+              topic: "Failure & Recovery",
+              prompt: "Tell me about a mistake or failed approach you made in a project. What did it teach you?",
+              signals: ["mistake", "wrong", "owned", "impact", "fixed", "lesson", "changed", "now", "review", "testing"],
+              hint: "Pick a real mistake (not a humble-brag like 'I worked too hard'). Own it directly, show how you mitigated the blast radius, and prove the lesson stuck.",
+              probe: "Can you point to a later project where that specific lesson changed how you worked?",
+              outline: [
+                "Mistake: Be candid about what you misjudged.",
+                "Recovery: Detail how you surfaced it quickly and repaired the damage.",
+                "Takeaway: Connect it to a concrete habit or checklist you still use."
+              ]
+            },
+            {
+              id: "beh-5",
+              topic: "Prioritization Under Pressure",
+              prompt: "Describe a week where you had multiple competing high-priority tasks. How did you decide what to do first?",
+              signals: ["prioritized", "impact", "deadline", "trade-off", "delegated", "communicated", "cut", "scope", "delivered"],
+              hint: "Explain your prioritization criteria (impact vs. urgency, unblocking others) and how you proactively renegotiated deadlines before missing them.",
+              probe: "What did you explicitly say 'no' to or defer, and how did you communicate that?",
+              outline: [
+                "Context: Briefly list the competing deliverables and constraints.",
+                "Framework: Explain how you ranked them (e.g., critical path, user impact) and aligned expectations early.",
+                "Outcome: Share what shipped on time and how deferred work was handled cleanly."
+              ]
+            }
+          ]
+        },
+        dsa: {
+          id: "dsa",
+          name: "DSA & Problem Solving",
+          short: "DSA",
+          icon: "code-2",
+          framework: "Clarify → Brute Force → Optimal Approach → Time/Space Complexity → Edge Cases",
+          targetWords: [70, 220],
+          questions: [
+            {
+              id: "dsa-1",
+              topic: "Caching & Data Structures",
+              prompt: "How would you design an LRU (Least Recently Used) Cache supporting O(1) get and O(1) put operations? Walk through the data structures and edge cases.",
+              signals: ["hash", "map", "doubly linked list", "o(1)", "evict", "head", "tail", "capacity", "update", "space", "o(n)", "edge"],
+              hint: "Combine two structures: one for O(1) key lookup and one for O(1) recency reordering and tail eviction.",
+              probe: "Why is a singly linked list not enough here, and how would you make this cache thread-safe?",
+              outline: [
+                "Data Structures: Hash map (key → node) + Doubly Linked List (most recent at head, least recent at tail) with dummy sentinel nodes.",
+                "Operations: get() looks up node and moves it to head; put() updates/inserts at head and evicts tail.prev when size exceeds capacity.",
+                "Complexity & Edge Cases: O(1) time for both, O(capacity) space; handle capacity = 0 or 1, and updating an existing key."
+              ]
+            },
+            {
+              id: "dsa-2",
+              topic: "Sliding Window & Strings",
+              prompt: "Explain how to find the length of the longest substring without repeating characters. Compare a naive approach with the optimal solution.",
+              signals: ["sliding window", "two pointers", "hash", "set", "map", "o(n)", "o(n^2)", "index", "left", "right", "space", "empty"],
+              hint: "Think about maintaining a valid window [left, right] and jumping the left pointer forward whenever you see a duplicate.",
+              probe: "What is the exact space complexity if the input is ASCII vs. arbitrary Unicode?",
+              outline: [
+                "Naive: Check all substrings in O(n^2) or O(n^3).",
+                "Optimal: Sliding window with a map storing each character's last seen index; when duplicate appears inside window, set left = max(left, lastSeen[c] + 1).",
+                "Complexity: O(n) time, O(min(n, alphabet)) space; test empty string and all-identical characters."
+              ]
+            },
+            {
+              id: "dsa-3",
+              topic: "Graphs & Shortest Path",
+              prompt: "When would you choose BFS over Dijkstra's algorithm for finding shortest paths in a graph, and what breaks Dijkstra?",
+              signals: ["unweighted", "weighted", "negative", "priority queue", "heap", "o(v+e)", "o((v+e) log v)", "bellman", "greedy", "cycle"],
+              hint: "Contrast edge weights, greedy invariants, and time complexity—then mention what algorithm handles negative edges.",
+              probe: "If edges only have weights 0 or 1, can you beat Dijkstra's log factor?",
+              outline: [
+                "BFS: Optimal for unweighted graphs in O(V + E) using a FIFO queue.",
+                "Dijkstra: For non-negative weighted graphs in O((V + E) log V) with a min-heap; fails with negative weights because settled nodes can later find a cheaper path.",
+                "Alternative: Use Bellman-Ford (or 0-1 BFS with a deque for {0,1} weights)."
+              ]
+            },
+            {
+              id: "dsa-4",
+              topic: "Heaps & Streaming Data",
+              prompt: "How would you find the k largest elements from a continuous stream of numbers? Discuss time and memory trade-offs.",
+              signals: ["min-heap", "heap", "priority queue", "o(n log k)", "o(k)", "sort", "quickselect", "stream", "memory"],
+              hint: "A min-heap of size k keeps the smallest of the top-k at the root so any smaller incoming element is discarded in O(1).",
+              probe: "Why use a min-heap instead of a max-heap when looking for the k largest items?",
+              outline: [
+                "Approach: Maintain a min-heap capped at size k; push new item, and if size > k, pop the minimum.",
+                "Why Min-Heap: The root is the threshold to beat, keeping space strictly O(k) instead of O(n).",
+                "Complexity: O(log k) per incoming item (O(n log k) total), O(k) memory."
+              ]
+            },
+            {
+              id: "dsa-5",
+              topic: "Dynamic Programming Intuition",
+              prompt: "How do you recognize when a problem is a good fit for Dynamic Programming, and how do you choose between top-down memoization and bottom-up tabulation?",
+              signals: ["overlapping", "subproblems", "optimal substructure", "memoization", "tabulation", "recursion", "stack", "state", "transition", "space"],
+              hint: "Name the two core properties of DP, then compare recursion stack overhead, state pruning, and space optimization.",
+              probe: "When can you reduce a 2D DP table down to O(n) or O(1) space?",
+              outline: [
+                "Criteria: Optimal substructure + overlapping subproblems.",
+                "Top-Down (Memoization): Easier to write, computes only reachable states, risks recursion stack overflow.",
+                "Bottom-Up (Tabulation): Iterative, avoids stack limits, and enables rolling-array space optimization."
+              ]
+            }
+          ]
+        },
+        sysdesign: {
+          id: "sysdesign",
+          name: "System Design",
+          short: "System Design",
+          icon: "network",
+          framework: "Requirements → Scale Estimates → High-Level Architecture → Deep Dive & Bottlenecks",
+          targetWords: [90, 260],
+          questions: [
+            {
+              id: "sys-1",
+              topic: "API Protection",
+              prompt: "Design a distributed API Rate Limiter. Walk through requirements, algorithms, storage, and how you handle multiple server instances.",
+              signals: ["token bucket", "sliding window", "redis", "atomic", "lua", "latency", "429", "distributed", "race condition", "fail open", "gateway"],
+              hint: "Start with functional/non-functional goals (low latency, accuracy), pick a concrete algorithm (Token Bucket or Sliding Window), and explain how Redis avoids race conditions.",
+              probe: "What happens if Redis goes down—should your rate limiter fail open or fail closed?",
+              outline: [
+                "Requirements: Per-user/IP quotas, HTTP 429 responses, <5ms overhead, horizontal scale.",
+                "Algorithm & Store: Token Bucket or Sliding Window Counter backed by Redis using atomic Lua scripts to prevent race conditions.",
+                "Reliability: Place at the API Gateway, add local fallback or fail-open policy depending on security vs. availability priorities."
+              ]
+            },
+            {
+              id: "sys-2",
+              topic: "High-Read Web Service",
+              prompt: "Design a URL Shortener (like bit.ly) that handles 100M redirects per day. Cover key generation, database choice, and caching.",
+              signals: ["base62", "hash", "collision", "read-heavy", "cache", "redis", "301", "302", "sharding", "analytics", "database", "latency"],
+              hint: "Highlight the read-to-write ratio, explain 301 vs. 302 redirects for analytics, and address ID generation without collisions.",
+              probe: "Why might you choose a 302 redirect instead of a 301 redirect if you want accurate click analytics?",
+              outline: [
+                "Scale & API: Heavily read-dominated (e.g., 100:1); POST /shorten and GET /:code.",
+                "Key Generation: Base62 encoding of a distributed counter/Snowflake ID or pre-generated key service to avoid hash collisions.",
+                "Storage & Caching: NoSQL/SQL key-value lookup with Redis cache (LRU) for hot links; 302 if tracking clicks, 301 to offload traffic to browser cache."
+              ]
+            },
+            {
+              id: "sys-3",
+              topic: "Real-Time Systems",
+              prompt: "How would you architect a real-time 1-on-1 chat system supporting delivery receipts and offline users?",
+              signals: ["websocket", "persistent", "presence", "queue", "kafka", "push", "database", "partition", "idempotent", "ordering", "offline"],
+              hint: "Explain why WebSockets beat HTTP polling, how messages route across chat servers, and how offline messages are persisted and pushed.",
+              probe: "How do you guarantee message ordering when a user reconnects on a flaky mobile network?",
+              outline: [
+                "Transport: Persistent WebSocket connections behind a stateful connection layer / gateway.",
+                "Routing & Persistence: Service maps userId → gateway node (via Redis); persist messages in a partitioned store (e.g., Cassandra/Postgres by conversation_id) and enqueue push notifications for offline recipients.",
+                "Ordering & Reliability: Sequence IDs / Lamport timestamps per conversation + client acks for sent/delivered/read states."
+              ]
+            },
+            {
+              id: "sys-4",
+              topic: "Asynchronous Processing",
+              prompt: "Design a background job queue for sending millions of emails and webhooks reliably without losing tasks or duplicating side effects.",
+              signals: ["queue", "worker", "retry", "backoff", "dead letter", "dlq", "idempotency", "at-least-once", "visibility", "scale", "monitoring"],
+              hint: "Cover producer → queue → worker pool, retries with exponential backoff, Dead Letter Queues (DLQ), and idempotency keys.",
+              probe: "Why is 'exactly-once delivery' hard in distributed queues, and how do idempotency keys solve it?",
+              outline: [
+                "Architecture: API enqueues jobs to SQS/Kafka/RabbitMQ; autoscaling workers pull and process asynchronously.",
+                "Reliability: Visibility timeouts + exponential backoff with jitter + Dead Letter Queue for poison pills.",
+                "Deduplication: At-least-once delivery paired with idempotency keys stored in a transactional DB."
+              ]
+            }
+          ]
+        },
+        aiml: {
+          id: "aiml",
+          name: "AI & Machine Learning",
+          short: "AI / ML",
+          icon: "cpu",
+          framework: "Core Concept → Mathematical/Practical Intuition → Trade-offs → Production Reality",
+          targetWords: [80, 240],
+          questions: [
+            {
+              id: "ai-1",
+              topic: "LLM Architecture & Grounding",
+              prompt: "When building a domain-specific AI assistant, how do you decide between RAG (Retrieval-Augmented Generation) and fine-tuning?",
+              signals: ["rag", "fine-tuning", "fresh", "knowledge", "hallucination", "citation", "style", "latency", "cost", "hybrid", "embeddings", "chunking"],
+              hint: "Separate knowledge freshness/traceability (RAG) from behavior/tone/format specialization (fine-tuning), and mention when combining both makes sense.",
+              probe: "If your RAG system retrieves the wrong chunks, what are the top two retrieval upgrades you'd try first?",
+              outline: [
+                "RAG: Best for fast-changing facts, private docs, citations, and lower hallucination without retraining weights.",
+                "Fine-Tuning: Best for teaching strict output formats, domain jargon, tone, or distilling a smaller faster model.",
+                "Production: Often combined—RAG for grounded knowledge + light fine-tuning or hybrid search/reranking for accuracy."
+              ]
+            },
+            {
+              id: "ai-2",
+              topic: "Evaluation & Imbalanced Data",
+              prompt: "You trained a fraud-detection classifier with 99.5% accuracy, yet it fails in production. Why is accuracy misleading here, and what metrics should you track instead?",
+              signals: ["imbalanced", "precision", "recall", "f1", "pr-auc", "roc", "false negative", "false positive", "threshold", "cost", "baseline"],
+              hint: "Explain the majority-class trap, contrast precision vs. recall in fraud, and discuss threshold tuning based on business cost.",
+              probe: "How would you choose the decision threshold if blocking a legitimate transaction costs $50 in churn while missing fraud costs $500?",
+              outline: [
+                "The Trap: If only 0.5% of transactions are fraud, predicting 'not fraud' every time yields 99.5% accuracy with 0% fraud caught.",
+                "Better Metrics: Precision, Recall, F1, and PR-AUC (more informative than ROC-AUC under severe skew).",
+                "Calibration: Tune classification threshold directly against expected false-positive vs. false-negative business cost."
+              ]
+            },
+            {
+              id: "ai-3",
+              topic: "Generalization & Regularization",
+              prompt: "Your model achieves near-zero training loss but poor validation performance. Diagnose the issue and walk through concrete steps to fix it.",
+              signals: ["overfitting", "variance", "data", "regularization", "dropout", "l2", "weight decay", "early stopping", "augmentation", "simplify", "cross-validation", "leakage"],
+              hint: "Name overfitting (high variance), check data quality/leakage first, then organize fixes across data, model capacity, and regularization.",
+              probe: "How would you tell the difference between overfitting and a train/validation distribution mismatch?",
+              outline: [
+                "Diagnosis: High variance / overfitting (memorizing training noise instead of general patterns).",
+                "Data Fixes: Collect more diverse data, apply domain-valid augmentation, check for train/val distribution shift.",
+                "Model & Training Fixes: Reduce capacity, add L2 weight decay / dropout, use early stopping and k-fold cross-validation."
+              ]
+            },
+            {
+              id: "ai-4",
+              topic: "Transformers & Attention",
+              prompt: "Why does self-attention scale quadratically with sequence length, and what practical techniques help LLMs handle long contexts?",
+              signals: ["o(n^2)", "quadratic", "query", "key", "value", "kv cache", "flashattention", "sliding window", "sparse", "memory", "context"],
+              hint: "Connect the QK^T matrix multiplication (N × N) to memory/compute growth, then name memory-efficient kernels or architectural tweaks.",
+              probe: "What role does the KV cache play during autoregressive decoding, and what becomes the main bottleneck?",
+              outline: [
+                "Quadratic Bottleneck: Computing pairwise dot products (QK^T) across N tokens produces an N×N attention matrix (O(N^2) time and memory).",
+                "Systems Optimizations: FlashAttention (tiling in SRAM to avoid HBM bottlenecks), KV-cache quantization, PagedAttention.",
+                "Architectural Approaches: Grouped-Query Attention (GQA), sliding-window/sparse attention, or hierarchical retrieval."
+              ]
+            }
+          ]
+        }
+      };
+
+      // ---------- Application State ----------
+      const state = {
+        track: "behavioral",
+        level: "entry",
+        mode: "practice",
+        role: "Software Engineer",
+        dark: false,
+        provider: "builtin",
+        apiKey: "",
+        messages: [],
+        evaluations: [],
+        currentQuestion: null,
+        qIndexMap: { behavioral: 0, dsa: 0, sysdesign: 0, aiml: 0 },
+        qCount: 1,
+        awaitingFollowup: false,
+        isLoading: false,
+        timerSeconds: 0,
+        timerRunning: false,
+        timerId: null,
+        recognition: null,
+        isRecording: false
+      };
+
+      // ---------- DOM Refs ----------
+      const el = {
+        sidebar: document.getElementById("sidebar"),
+        sidebarBackdrop: document.getElementById("sidebar-backdrop"),
+        trackList: document.getElementById("track-list"),
+        headerTrackBadge: document.getElementById("header-track-badge"),
+        engineLabel: document.getElementById("engine-label"),
+        debriefCount: document.getElementById("debrief-count"),
+        modeHint: document.getElementById("mode-hint"),
+        inputRole: document.getElementById("input-role"),
+        avgScoreBadge: document.getElementById("avg-score-badge"),
+        qCounter: document.getElementById("q-counter"),
+        qTopicLabel: document.getElementById("q-topic-label"),
+        timerDisplay: document.getElementById("timer-display"),
+        btnTimerToggle: document.getElementById("btn-timer-toggle"),
+        btnTimerReset: document.getElementById("btn-timer-reset"),
+        chatStream: document.getElementById("chat-stream"),
+        chatInner: document.getElementById("chat-inner"),
+        chatForm: document.getElementById("chat-form"),
+        answerInput: document.getElementById("answer-input"),
+        wordCountPill: document.getElementById("word-count-pill"),
+        btnHint: document.getElementById("btn-hint"),
+        btnProbe: document.getElementById("btn-probe"),
+        btnNextQ: document.getElementById("btn-next-q"),
+        btnSample: document.getElementById("btn-sample"),
+        btnMic: document.getElementById("btn-mic"),
+        btnSend: document.getElementById("btn-send"),
+        themeIcon: document.getElementById("theme-icon"),
+        modalSettings: document.getElementById("modal-settings"),
+        selectProvider: document.getElementById("select-provider"),
+        apiKeyWrap: document.getElementById("api-key-wrap"),
+        inputApiKey: document.getElementById("input-api-key"),
+        modalCustom: document.getElementById("modal-custom"),
+        inputCustomQ: document.getElementById("input-custom-q"),
+        inputCustomKeywords: document.getElementById("input-custom-keywords"),
+        modalDebrief: document.getElementById("modal-debrief"),
+        debriefSubtitle: document.getElementById("debrief-subtitle"),
+        debriefBody: document.getElementById("debrief-body"),
+        toast: document.getElementById("toast")
+      };
+
+      // ---------- Utilities ----------
+      let toastTimer = null;
+      function showToast(msg) {
+        el.toast.textContent = msg;
+        el.toast.classList.remove("hidden");
+        if (toastTimer) clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => el.toast.classList.add("hidden"), 2600);
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function countWords(text) {
+        const trimmed = text.trim();
+        return trimmed ? trimmed.split(/\s+/).length : 0;
+      }
+
+      function formatTime(sec) {
+        const m = String(Math.floor(sec / 60)).padStart(2, "0");
+        const s = String(sec % 60).padStart(2, "0");
+        return `${m}:${s}`;
+      }
+
+      function savePrefs() {
+        try {
+          localStorage.setItem("cadence_prefs", JSON.stringify({
+            dark: state.dark,
+            role: state.role,
+            provider: state.provider
+          }));
+        } catch (_) {}
+      }
+
+      function loadPrefs() {
+        try {
+          const raw = localStorage.getItem("cadence_prefs");
+          if (!raw) return;
+          const p = JSON.parse(raw);
+          if (typeof p.dark === "boolean") state.dark = p.dark;
+          if (p.role) state.role = p.role;
+          if (p.provider) state.provider = p.provider;
+        } catch (_) {}
+      }
+
+      // ---------- Timer ----------
+      function stopTimer() {
+        if (state.timerId) {
+          clearInterval(state.timerId);
+          state.timerId = null;
+        }
+        state.timerRunning = false;
+        el.btnTimerToggle.textContent = "Start";
+      }
+
+      function resetTimer() {
+        stopTimer();
+        state.timerSeconds = 0;
+        el.timerDisplay.textContent = "00:00";
+      }
+
+      function toggleTimer() {
+        if (state.timerRunning) {
+          stopTimer();
+        } else {
+          state.timerRunning = true;
+          el.btnTimerToggle.textContent = "Pause";
+          state.timerId = setInterval(() => {
+            state.timerSeconds += 1;
+            el.timerDisplay.textContent = formatTime(state.timerSeconds);
+          }, 1000);
+        }
+      }
+
+      // ---------- Built-in Rubric Evaluator ----------
+      function evaluateOffline(answer, question, trackObj, level) {
+        const lower = answer.toLowerCase();
+        const words = countWords(answer);
+        const [minW, maxW] = trackObj.targetWords;
+        const levelPenalty = level === "senior" ? 6 : level === "mid" ? 3 : 0;
+
+        // 1. Structure score
+        let structure = 52;
+        const structureMarkers = [
+          /\b(situation|context|background|initially|when i)\b/i,
+          /\b(task|goal|objective|problem|requirement|constraint)\b/i,
+          /\b(action|implemented|designed|built|decided|approached|used|first|then|next|finally)\b/i,
+          /\b(result|outcome|impact|learned|complexity|trade-?off|edge case|bottleneck)\b/i
+        ];
+        let matchedStages = 0;
+        structureMarkers.forEach(rx => { if (rx.test(answer)) matchedStages++; });
+        structure += matchedStages * 11;
+        if (answer.includes("\n") || /\b(first|second|finally|1\.|2\.)\b/i.test(answer)) structure += 5;
+        if (words < 30) structure = Math.min(structure, 48);
+        structure = Math.max(30, Math.min(98, structure - Math.floor(levelPenalty / 2)));
+
+        // 2. Depth & Signal score
+        const signals = question.signals || [];
+        const matchedSignals = signals.filter(sig => lower.includes(sig.toLowerCase()));
+        const signalRatio = signals.length > 0 ? matchedSignals.length / Math.min(signals.length, 6) : 0.65;
+        let depth = Math.round(45 + Math.min(1, signalRatio) * 48);
+        if (/\b(because|trade-?off|instead of|however|edge case|fallback|alternative|scale|complexity)\b/i.test(answer)) {
+          depth += 6;
+        }
+        if (words < 25) depth = Math.min(depth, 45);
+        depth = Math.max(28, Math.min(98, depth - levelPenalty));
+
+        // 3. Specificity score
+        let specificity = 50;
+        const hasNumbers = /\b\d+(\.\d+)?(%|x|ms|s|mb|gb|k|m|b|\+| users| requests| hours| days| weeks)?\b/i.test(answer);
+        const hasComplexity = /\bo\([^)]+\)/i.test(answer);
+        const hasFirstPerson = /\b(i built|i led|i designed|i debugged|i proposed|i chose|i noticed|i would)\b/i.test(answer);
+        const hasConcreteExample = /\b(for example|for instance|specifically|such as|in my project)\b/i.test(answer);
+        if (hasNumbers) specificity += 18;
+        if (hasComplexity) specificity += 14;
+        if (hasFirstPerson) specificity += 12;
+        if (hasConcreteExample) specificity += 10;
+        if (words < 35) specificity = Math.min(specificity, 52);
+        specificity = Math.max(30, Math.min(98, specificity - Math.floor(levelPenalty / 2)));
+
+        // 4. Clarity & Pacing score
+        let clarity = 84;
+        if (words < 25) clarity = 45;
+        else if (words < minW) clarity = 68;
+        else if (words > maxW + 90) clarity = 64;
+        else if (words > maxW) clarity = 76;
+        else clarity = 90;
+        const sentences = answer.split(/[.!?]+/).filter(s => s.trim().length > 0).length || 1;
+        const avgSentenceLen = words / sentences;
+        if (avgSentenceLen > 34) clarity -= 8;
+        clarity = Math.max(35, Math.min(96, clarity));
+
+        const overall = Math.round((structure * 0.25) + (depth * 0.35) + (specificity * 0.22) + (clarity * 0.18));
+
+        // Build concrete strengths & improvements
+        const strengths = [];
+        const improvements = [];
+
+        if (matchedSignals.length >= 3) {
+          strengths.push(`Hit key domain signals (${matchedSignals.slice(0, 4).join(", ")}).`);
+        } else if (matchedSignals.length >= 1) {
+          strengths.push(`Touched on relevant concepts (${matchedSignals.slice(0, 2).join(", ")}).`);
+        }
+
+        if (matchedStages >= 3) {
+          strengths.push(`Clear narrative arc that follows the ${trackObj.short} structure well.`);
+        } else {
+          improvements.push(`Structure your answer explicitly around: ${trackObj.framework}.`);
+        }
+
+        if (hasNumbers || hasComplexity) {
+          strengths.push("Good use of concrete metrics or complexity notation to anchor your claims.");
+        } else {
+          improvements.push(
+            trackObj.id === "behavioral"
+              ? "Add at least one measurable outcome (time saved, users impacted, or defect reduction)."
+              : "Quantify your answer with explicit Big-O complexity, latency/scale targets, or metrics."
+          );
+        }
+
+        if (words < minW) {
+          improvements.push(`A bit brief (${words} words). Aim for ${minW}–${maxW} words so you don't skip trade-offs or edge cases.`);
+        } else if (words > maxW) {
+          improvements.push(`Slightly long (${words} words). Tighten the setup so you land the core point within ~2 minutes.`);
+        } else {
+          strengths.push(`Strong pacing (${words} words) — concise enough for a real interview slot.`);
+        }
+
+        const missingSignals = signals.filter(s => !matchedSignals.includes(s)).slice(0, 3);
+        if (missingSignals.length > 0 && depth < 82) {
+          improvements.push(`Consider weaving in: ${missingSignals.join(", ")}.`);
+        }
+
+        if (strengths.length === 0) {
+          strengths.push("Direct attempt at answering the prompt—now let's layer in structure and concrete evidence.");
+        }
+
+        let summary = "";
+        if (overall >= 82) {
+          summary = "Strong, hire-ready response. Clear signal, solid structure, and concrete grounding.";
+        } else if (overall >= 65) {
+          summary = "Solid foundation with good instincts—tightening specificity and trade-offs will push this to a strong hire.";
+        } else {
+          summary = "Good starting point, but an interviewer would probe for much deeper detail and clearer structure.";
+        }
+
+        return {
+          questionId: question.id,
+          questionPrompt: question.prompt,
+          topic: question.topic,
+          track: trackObj.name,
+          overall,
+          scores: { structure, depth, specificity, clarity },
+          summary,
+          strengths,
+          improvements,
+          probe: question.probe || "What trade-off did you consider and decide against here?",
+          outline: question.outline || []
+        };
+      }
+
+      // ---------- Optional Live API Evaluator ----------
+      async function evaluateWithAPI(answer, question, trackObj) {
+        const sysPrompt = `You are a sharp, constructive technical & behavioral interview coach interviewing a ${state.level}-level ${state.role} candidate on ${trackObj.name}.
+Evaluate the candidate's answer to: "${question.prompt}".
+Respond ONLY with valid JSON matching this exact schema (no markdown fences):
+{
+  "overall": number (0-100),
+  "scores": { "structure": number, "depth": number, "specificity": number, "clarity": number },
+  "summary": "1-2 sentence direct assessment",
+  "strengths": ["short concrete bullet 1", "bullet 2"],
+  "improvements": ["short actionable bullet 1", "bullet 2"],
+  "probe": "1 sharp follow-up question an interviewer would ask next"
+}`;
+
+        if (state.provider === "gemini") {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(state.apiKey)}`;
+          const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ role: "user", parts: [{ text: `${sysPrompt}\n\nCandidate Answer:\n${answer}` }] }],
+              generationConfig: { responseMimeType: "application/json", temperature: 0.3 }
+            })
+          });
+          if (!res.ok) throw new Error(`Gemini HTTP ${res.status}`);
+          const data = await res.json();
+          const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+          return parseApiEvaluation(raw, question, trackObj);
+        }
+
+        if (state.provider === "openai") {
+          const res = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${state.apiKey}`
+            },
+            body: JSON.stringify({
+              model: "gpt-4o-mini",
+              temperature: 0.3,
+              response_format: { type: "json_object" },
+              messages: [
+                { role: "system", content: sysPrompt },
+                { role: "user", content: answer }
+              ]
+            })
+          });
+          if (!res.ok) throw new Error(`OpenAI HTTP ${res.status}`);
+          const data = await res.json();
+          const raw = data?.choices?.[0]?.message?.content || "";
+          return parseApiEvaluation(raw, question, trackObj);
+        }
+
+        return null;
+      }
+
+      function parseApiEvaluation(raw, question, trackObj) {
+        const cleaned = raw.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
+        const parsed = JSON.parse(cleaned);
+        const clamp = n => Math.max(0, Math.min(100, Math.round(Number(n) || 70)));
+        return {
+          questionId: question.id,
+          questionPrompt: question.prompt,
+          topic: question.topic,
+          track: trackObj.name,
+          overall: clamp(parsed.overall),
+          scores: {
+            structure: clamp(parsed.scores?.structure),
+            depth: clamp(parsed.scores?.depth),
+            specificity: clamp(parsed.scores?.specificity),
+            clarity: clamp(parsed.scores?.clarity)
+          },
+          summary: parsed.summary || "Evaluation complete.",
+          strengths: Array.isArray(parsed.strengths) ? parsed.strengths.slice(0, 3) : [],
+          improvements: Array.isArray(parsed.improvements) ? parsed.improvements.slice(0, 3) : [],
+          probe: parsed.probe || question.probe,
+          outline: question.outline || []
+        };
+      }
+
+      // ---------- UI Rendering ----------
+      function renderTracks() {
+        el.trackList.innerHTML = Object.values(TRACKS).map(t => {
+          const active = t.id === state.track;
+          return `
+            <button type="button" data-track="${t.id}"
+              class="track-btn w-full text-left px-3 py-2 rounded-lg border text-xs font-medium flex items-center justify-between transition ${active ? "chip-active" : "subtle text-sub hover:text-main"}">
+              <span class="flex items-center gap-2 truncate">
+                <i data-lucide="${t.icon}" class="w-3.5 h-3.5 shrink-0"></i>
+                <span class="truncate">${escapeHtml(t.name)}</span>
+              </span>
+              <span class="mono text-[10px] opacity-75">${t.questions.length}Q</span>
+            </button>
+          `;
+        }).join("");
+
+        el.trackList.querySelectorAll(".track-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const nextTrack = btn.getAttribute("data-track");
+            if (nextTrack !== state.track) {
+              state.track = nextTrack;
+              startFreshQuestion(true);
+              closeMobileSidebar();
+            }
+          });
+        });
+
+        el.headerTrackBadge.textContent = TRACKS[state.track].name;
+      }
+
+      function renderControls() {
+        document.querySelectorAll(".level-btn").forEach(btn => {
+          const active = btn.getAttribute("data-level") === state.level;
+          btn.style.backgroundColor = active ? "var(--bg-surface)" : "transparent";
+          btn.style.color = active ? "var(--text-primary)" : "var(--text-secondary)";
+          btn.style.boxShadow = active ? "0 1px 2px rgba(0,0,0,0.06)" : "none";
+        });
+
+        document.querySelectorAll(".mode-btn").forEach(btn => {
+          const active = btn.getAttribute("data-mode") === state.mode;
+          btn.style.backgroundColor = active ? "var(--bg-surface)" : "transparent";
+          btn.style.color = active ? "var(--text-primary)" : "var(--text-secondary)";
+          btn.style.boxShadow = active ? "0 1px 2px rgba(0,0,0,0.06)" : "none";
+        });
+
+        const isMock = state.mode === "mock";
+        el.modeHint.textContent = isMock
+          ? "Strict 5-question mock interview. Hints & outlines are hidden until debrief."
+          : "Hints enabled with immediate rubric feedback after every answer.";
+
+        el.btnHint.classList.toggle("hidden", isMock);
+        el.btnSample.classList.toggle("hidden", isMock);
+
+        if (state.provider === "builtin" || !state.apiKey) {
+          el.engineLabel.textContent = "Built-in Coach";
+        } else if (state.provider === "gemini") {
+          el.engineLabel.textContent = "Gemini Live";
+        } else {
+          el.engineLabel.textContent = "OpenAI Live";
+        }
+      }
+
+      function renderScorecardRail() {
+        const evals = state.evaluations;
+        el.debriefCount.textContent = String(evals.length);
+        if (evals.length === 0) {
+          el.avgScoreBadge.textContent = "--";
+          ["structure", "depth", "specificity", "clarity"].forEach(k => {
+            document.getElementById(`bar-${k}`).style.width = "0%";
+            document.getElementById(`bar-val-${k}`).textContent = "--";
+          });
+          return;
+        }
+
+        const avg = key => Math.round(evals.reduce((sum, e) => sum + (key ? e.scores[key] : e.overall), 0) / evals.length);
+        const overallAvg = avg(null);
+        el.avgScoreBadge.textContent = `${overallAvg}/100`;
+        el.avgScoreBadge.style.color = scoreColor(overallAvg);
+
+        ["structure", "depth", "specificity", "clarity"].forEach(k => {
+          const v = avg(k);
+          document.getElementById(`bar-${k}`).style.width = `${v}%`;
+          document.getElementById(`bar-${k}`).style.backgroundColor = scoreColor(v);
+          document.getElementById(`bar-val-${k}`).textContent = `${v}`;
+        });
+      }
+
+      function scoreColor(score) {
+        if (score >= 80) return "var(--accent)";
+        if (score >= 62) return "var(--warn)";
+        return "var(--danger)";
+      }
+
+      function renderQuestionMeta() {
+        const q = state.currentQuestion;
+        const suffix = state.mode === "mock" ? ` / 5` : "";
+        el.qCounter.textContent = `Q${state.qCount}${suffix}`;
+        el.qTopicLabel.textContent = q ? `${q.topic} · ${TRACKS[state.track].framework}` : "";
+      }
+
+      function renderMessages() {
+        el.chatInner.innerHTML = state.messages.map((m, idx) => {
+          if (m.role === "user") {
+            return `
+              <div class="flex justify-end msg-enter">
+                <div class="max-w-[85%] sm:max-w-[78%] rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed border"
+                  style="background-color: var(--accent); color: #FFFFFF; border-color: transparent;">
+                  <div class="whitespace-pre-wrap">${escapeHtml(m.text)}</div>
+                  ${m.meta ? `<div class="mt-1.5 text-[11px] opacity-75 mono">${escapeHtml(m.meta)}</div>` : ""}
+                </div>
+              </div>
+            `;
+          }
+
+          if (m.type === "evaluation") {
+            const ev = m.evaluation;
+            const col = scoreColor(ev.overall);
+            const outlineHtml = ev.outline && ev.outline.length > 0 && state.mode !== "mock"
+              ? `
+                <details class="mt-3 pt-3 border-t hairline">
+                  <summary class="text-xs font-medium cursor-pointer text-sub hover:text-main select-none">View Strong Answer Outline</summary>
+                  <ul class="mt-2 space-y-1.5 text-xs text-sub list-disc pl-4">
+                    ${ev.outline.map(line => `<li>${escapeHtml(line)}</li>`).join("")}
+                  </ul>
+                </details>
+              `
+              : "";
+
+            return `
+              <div class="flex items-start gap-3 msg-enter">
+                <div class="w-7 h-7 rounded-lg shrink-0 flex items-center justify-center border subtle mt-0.5">
+                  <i data-lucide="award" class="w-3.5 h-3.5" style="color: ${col};"></i>
+                </div>
+                <div class="flex-1 min-w-0 surface border rounded-2xl rounded-tl-sm p-4 space-y-3">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-semibold uppercase tracking-wider text-faint">Coach Feedback</span>
+                      <span class="text-[11px] px-2 py-0.5 rounded-full subtle border text-sub">${escapeHtml(ev.topic)}</span>
+                    </div>
+                    <div class="flex items-baseline gap-1">
+                      <span class="mono text-lg font-bold" style="color: ${col};">${ev.overall}</span>
+                      <span class="mono text-xs text-faint">/100</span>
+                    </div>
+                  </div>
+
+                  <p class="text-sm text-main leading-relaxed">${escapeHtml(ev.summary)}</p>
+
+                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    ${[
+                      ["Structure", ev.scores.structure],
+                      ["Depth", ev.scores.depth],
+                      ["Specificity", ev.scores.specificity],
+                      ["Clarity", ev.scores.clarity]
+                    ].map(([label, val]) => `
+                      <div class="subtle border rounded-lg px-2.5 py-2">
+                        <div class="text-[11px] text-faint">${label}</div>
+                        <div class="mono text-sm font-semibold mt-0.5" style="color: ${scoreColor(val)};">${val}</div>
+                      </div>
+                    `).join("")}
+                  </div>
+
+                  <div class="grid sm:grid-cols-2 gap-3 pt-1">
+                    <div class="space-y-1.5">
+                      <div class="text-[11px] font-semibold uppercase tracking-wider" style="color: var(--accent);">What Landed</div>
+                      <ul class="space-y-1 text-xs text-sub list-disc pl-4">
+                        ${ev.strengths.map(s => `<li>${escapeHtml(s)}</li>`).join("")}
+                      </ul>
+                    </div>
+                    <div class="space-y-1.5">
+                      <div class="text-[11px] font-semibold uppercase tracking-wider" style="color: var(--warn);">What to Tighten</div>
+                      <ul class="space-y-1 text-xs text-sub list-disc pl-4">
+                        ${ev.improvements.map(s => `<li>${escapeHtml(s)}</li>`).join("")}
+                      </ul>
+                    </div>
+                  </div>
+
+                  ${outlineHtml}
+
+                  <div class="pt-2 border-t hairline flex flex-wrap items-center gap-2">
+                    <button type="button" data-action="probe" data-idx="${idx}"
+                      class="inline-action-btn text-xs font-medium px-3 py-1.5 rounded-lg subtle border text-main hover:opacity-85">
+                      Try Follow-up Probe
+                    </button>
+                    <button type="button" data-action="next" data-idx="${idx}"
+                      class="inline-action-btn btn-accent text-xs font-medium px-3 py-1.5 rounded-lg">
+                      Next Question →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+
+          const badgeText = m.badge || "Interviewer";
+          const iconName = m.type === "hint" ? "lightbulb" : m.type === "outline" ? "book-open" : "terminal";
+          return `
+            <div class="flex items-start gap-3 msg-enter">
+              <div class="w-7 h-7 rounded-lg shrink-0 flex items-center justify-center border subtle mt-0.5">
+                <i data-lucide="${iconName}" class="w-3.5 h-3.5 text-sub"></i>
+              </div>
+              <div class="flex-1 min-w-0 surface border rounded-2xl rounded-tl-sm px-4 py-3.5 space-y-1.5">
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] font-semibold uppercase tracking-wider text-faint">${escapeHtml(badgeText)}</span>
+                  ${m.subBadge ? `<span class="text-[11px] text-sub">· ${escapeHtml(m.subBadge)}</span>` : ""}
+                </div>
+                <div class="text-sm text-main leading-relaxed whitespace-pre-wrap">${escapeHtml(m.text)}</div>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        if (state.isLoading) {
+          el.chatInner.innerHTML += `
+            <div class="flex items-start gap-3">
+              <div class="w-7 h-7 rounded-lg shrink-0 flex items-center justify-center border subtle mt-0.5">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-sub"></i>
+              </div>
+              <div class="surface border rounded-2xl rounded-tl-sm px-4 py-3 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full typing-dot" style="background-color: var(--accent);"></span>
+                <span class="w-1.5 h-1.5 rounded-full typing-dot" style="background-color: var(--accent);"></span>
+                <span class="w-1.5 h-1.5 rounded-full typing-dot" style="background-color: var(--accent);"></span>
+              </div>
+            </div>
+          `;
+        }
+
+        // Bind inline card buttons
+        el.chatInner.querySelectorAll(".inline-action-btn").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const act = btn.getAttribute("data-action");
+            if (act === "probe") askFollowUpProbe();
+            if (act === "next") advanceQuestion();
+          });
+        });
+
+        lucide.createIcons();
+        el.chatStream.scrollTop = el.chatStream.scrollHeight;
+      }
+
+      // ---------- Interview Flow ----------
+      function pickNextQuestion(trackId) {
+        const list = TRACKS[trackId].questions;
+        const idx = state.qIndexMap[trackId] % list.length;
+        state.qIndexMap[trackId] = (idx + 1) % list.length;
+        return list[idx];
+      }
+
+      function startFreshQuestion(announceSwitch) {
+        resetTimer();
+        state.awaitingFollowup = false;
+        const trackObj = TRACKS[state.track];
+        const q = pickNextQuestion(state.track);
+        state.currentQuestion = q;
+
+        if (announceSwitch) {
+          state.messages.push({
+            role: "coach",
+            badge: `${trackObj.short} · ${state.level.toUpperCase()}`,
+            subBadge: q.topic,
+            text: q.prompt
+          });
+        } else {
+          state.messages = [
+            {
+              role: "coach",
+              badge: "Session Started",
+              subBadge: `${state.role} · ${trackObj.name}`,
+              text: `Welcome to your ${state.mode === "mock" ? "5-question mock interview" : "practice session"} for ${state.role}. Take your time, use the timer if you want realistic pacing, and submit your answer below.\n\nQuestion 1 — ${q.topic}:\n${q.prompt}`
+            }
+          ];
+        }
+
+        renderTracks();
+        renderControls();
+        renderQuestionMeta();
+        renderMessages();
+        lucide.createIcons();
+      }
+
+      function advanceQuestion() {
+        if (state.mode === "mock" && state.qCount >= 5) {
+          openDebriefModal();
+          return;
+        }
+        state.qCount += 1;
+        state.awaitingFollowup = false;
+        resetTimer();
+        const trackObj = TRACKS[state.track];
+        const q = pickNextQuestion(state.track);
+        state.currentQuestion = q;
+        state.messages.push({
+          role: "coach",
+          badge: `Question ${state.qCount}`,
+          subBadge: q.topic,
+          text: q.prompt
+        });
+        renderQuestionMeta();
+        renderMessages();
+      }
+
+      function askFollowUpProbe() {
+        const q = state.currentQuestion;
+        if (!q) return;
+        state.awaitingFollowup = true;
+        const lastEval = state.evaluations[state.evaluations.length - 1];
+        const probeText = (lastEval && lastEval.questionId === q.id && lastEval.probe) ? lastEval.probe : q.probe;
+        state.messages.push({
+          role: "coach",
+          badge: "Follow-up Probe",
+          subBadge: q.topic,
+          text: probeText || "Walk me through the biggest trade-off or failure mode in your approach."
+        });
+        renderMessages();
+        el.answerInput.focus();
+      }
+
+      async function handleSubmit(e) {
+        e.preventDefault();
+        if (state.isLoading) return;
+        const text = el.answerInput.value.trim();
+        if (!text) return;
+
+        const words = countWords(text);
+        const elapsed = state.timerSeconds > 0 ? ` · ${formatTime(state.timerSeconds)}` : "";
+        stopTimer();
+
+        state.messages.push({
+          role: "user",
+          text,
+          meta: `${words} words${elapsed}`
+        });
+
+        el.answerInput.value = "";
+        el.wordCountPill.textContent = "0 words";
+        state.isLoading = true;
+        renderMessages();
+
+        const trackObj = TRACKS[state.track];
+        const q = state.currentQuestion;
+        let evaluation = null;
+
+        if (state.provider !== "builtin" && state.apiKey) {
+          try {
+            evaluation = await evaluateWithAPI(text, q, trackObj);
+          } catch (err) {
+            showToast("Live API unavailable — used built-in coach.");
+            evaluation = evaluateOffline(text, q, trackObj, state.level);
+          }
+        } else {
+          await new Promise(r => setTimeout(r, 320));
+          evaluation = evaluateOffline(text, q, trackObj, state.level);
+        }
+
+        state.isLoading = false;
+        state.evaluations.push(evaluation);
+
+        if (state.mode === "mock") {
+          // In Mock mode, record silently and either probe or move to next question
+          if (state.qCount >= 5) {
+            state.messages.push({
+              role: "coach",
+              badge: "Mock Interview Complete",
+              text: "That wraps up all 5 questions. Open your Session Debrief to review your full rubric scores and hiring-committee notes."
+            });
+            renderScorecardRail();
+            renderMessages();
+            openDebriefModal();
+          } else {
+            state.messages.push({
+              role: "coach",
+              badge: "Interviewer",
+              text: `Got it—noted. Let's move on to Question ${state.qCount + 1}.`
+            });
+            renderScorecardRail();
+            advanceQuestion();
+          }
+          return;
+        }
+
+        state.messages.push({
+          role: "coach",
+          type: "evaluation",
+          evaluation
+        });
+
+        renderScorecardRail();
+        renderMessages();
+      }
+
+      // ---------- Debrief Modal ----------
+      function openDebriefModal() {
+        const evals = state.evaluations;
+        el.debriefSubtitle.textContent = `${state.role} · ${evals.length} answer${evals.length === 1 ? "" : "s"} evaluated`;
+
+        if (evals.length === 0) {
+          el.debriefBody.innerHTML = `
+            <div class="text-center py-8 space-y-2">
+              <p class="text-sm font-medium text-main">No evaluated answers yet</p>
+              <p class="text-xs text-sub">Submit your first answer in the chat to generate your rubric breakdown and coaching notes.</p>
+            </div>
+          `;
+        } else {
+          const avg = key => Math.round(evals.reduce((s, e) => s + (key ? e.scores[key] : e.overall), 0) / evals.length);
+          const overall = avg(null);
+          const dims = [
+            { name: "Structure", val: avg("structure") },
+            { name: "Depth & Signal", val: avg("depth") },
+            { name: "Specificity", val: avg("specificity") },
+            { name: "Clarity", val: avg("clarity") }
+          ];
+          const weakest = [...dims].sort((a, b) => a.val - b.val)[0];
+          const verdict = overall >= 82 ? "Strong Hire Signal" : overall >= 68 ? "Leaning Hire" : "Needs More Reps";
+
+          el.debriefBody.innerHTML = `
+            <div class="p-4 rounded-xl subtle border flex items-center justify-between gap-4">
+              <div>
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-faint">Overall Readiness</div>
+                <div class="text-base font-semibold text-main mt-0.5">${verdict}</div>
+                <div class="text-xs text-sub mt-1">Top priority to improve: <strong class="text-main">${weakest.name}</strong> (${weakest.val}/100)</div>
+              </div>
+              <div class="text-right shrink-0">
+                <span class="mono text-3xl font-bold" style="color: ${scoreColor(overall)};">${overall}</span>
+                <span class="mono text-xs text-faint">/100</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              ${dims.map(d => `
+                <div class="surface border rounded-lg p-3">
+                  <div class="text-[11px] text-faint">${d.name}</div>
+                  <div class="mono text-base font-semibold mt-0.5" style="color: ${scoreColor(d.val)};">${d.val}</div>
+                </div>
+              `).join("")}
+            </div>
+
+            <div class="space-y-2.5">
+              <div class="text-xs font-semibold uppercase tracking-wider text-faint">Question-by-Question Breakdown</div>
+              ${evals.map((ev, i) => `
+                <div class="surface border rounded-xl p-3.5 space-y-2">
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="min-w-0">
+                      <div class="text-[11px] text-faint">Q${i + 1} · ${escapeHtml(ev.track)} · ${escapeHtml(ev.topic)}</div>
+                      <div class="text-xs font-medium text-main mt-0.5">${escapeHtml(ev.questionPrompt)}</div>
+                    </div>
+                    <span class="mono text-sm font-bold shrink-0" style="color: ${scoreColor(ev.overall)};">${ev.overall}</span>
+                  </div>
+                  <p class="text-xs text-sub">${escapeHtml(ev.summary)}</p>
+                  <div class="text-xs text-sub"><strong class="text-main">Next focus:</strong> ${escapeHtml(ev.improvements[0] || "Keep refining conciseness.")}</div>
+                </div>
+              `).join("")}
+            </div>
+          `;
+        }
+
+        el.modalDebrief.classList.remove("hidden");
+      }
+
+      function copyDebriefMarkdown() {
+        if (state.evaluations.length === 0) {
+          showToast("Answer at least one question first.");
+          return;
+        }
+        const avg = Math.round(state.evaluations.reduce((s, e) => s + e.overall, 0) / state.evaluations.length);
+        const lines = [
+          `# Interview Prep Debrief — ${state.role}`,
+          `Overall Score: ${avg}/100 (${state.evaluations.length} questions)`,
+          ""
+        ];
+        state.evaluations.forEach((ev, i) => {
+          lines.push(`## Q${i + 1}: ${ev.topic} (${ev.overall}/100)`);
+          lines.push(`**Prompt:** ${ev.questionPrompt}`);
+          lines.push(`**Summary:** ${ev.summary}`);
+          lines.push(`- Structure: ${ev.scores.structure} | Depth: ${ev.scores.depth} | Specificity: ${ev.scores.specificity} | Clarity: ${ev.scores.clarity}`);
+          if (ev.improvements[0]) lines.push(`- Focus next: ${ev.improvements[0]}`);
+          lines.push("");
+        });
+        const md = lines.join("\n");
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(md).then(() => showToast("Debrief copied as Markdown")).catch(() => fallbackCopy(md));
+        } else {
+          fallbackCopy(md);
+        }
+      }
+
+      function fallbackCopy(text) {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand("copy");
+          showToast("Debrief copied as Markdown");
+        } catch (_) {
+          showToast("Could not copy automatically.");
+        }
+        document.body.removeChild(ta);
+      }
+
+      // ---------- Voice Input ----------
+      function toggleVoiceInput() {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SR) {
+          showToast("Voice input isn't supported in this browser.");
+          return;
+        }
+        if (state.isRecording && state.recognition) {
+          state.recognition.stop();
+          return;
+        }
+        const rec = new SR();
+        rec.lang = "en-US";
+        rec.interimResults = false;
+        rec.maxAlternatives = 1;
+        state.recognition = rec;
+        state.isRecording = true;
+        el.btnMic.style.color = "var(--danger)";
+        showToast("Listening... speak your answer.");
+
+        rec.onresult = event => {
+          const transcript = event.results?.[0]?.[0]?.transcript || "";
+          if (transcript) {
+            const sep = el.answerInput.value.trim() ? " " : "";
+            el.answerInput.value += sep + transcript;
+            el.wordCountPill.textContent = `${countWords(el.answerInput.value)} words`;
+          }
+        };
+        rec.onerror = () => showToast("Voice capture ended.");
+        rec.onend = () => {
+          state.isRecording = false;
+          el.btnMic.style.color = "";
+        };
+        try {
+          rec.start();
+        } catch (_) {
+          state.isRecording = false;
+          el.btnMic.style.color = "";
+        }
+      }
+
+      // ---------- Mobile Sidebar ----------
+      function openMobileSidebar() {
+        el.sidebar.classList.remove("-translate-x-full");
+        el.sidebarBackdrop.classList.remove("hidden");
+      }
+      function closeMobileSidebar() {
+        el.sidebar.classList.add("-translate-x-full");
+        el.sidebarBackdrop.classList.add("hidden");
+      }
+
+      // ---------- Theme ----------
+      function applyTheme() {
+        document.documentElement.classList.toggle("dark", state.dark);
+        el.themeIcon.setAttribute("data-lucide", state.dark ? "sun" : "moon");
+        lucide.createIcons();
+      }
+
+      // ---------- Event Listeners ----------
+      document.getElementById("btn-toggle-sidebar").addEventListener("click", openMobileSidebar);
+      document.getElementById("btn-close-sidebar").addEventListener("click", closeMobileSidebar);
+      el.sidebarBackdrop.addEventListener("click", closeMobileSidebar);
+
+      document.getElementById("btn-theme").addEventListener("click", () => {
+        state.dark = !state.dark;
+        applyTheme();
+        savePrefs();
+      });
+
+      document.querySelectorAll(".level-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          state.level = btn.getAttribute("data-level");
+          renderControls();
+          showToast(`Difficulty set to ${state.level.toUpperCase()}`);
+        });
+      });
+
+      document.querySelectorAll(".mode-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const nextMode = btn.getAttribute("data-mode");
+          if (nextMode !== state.mode) {
+            state.mode = nextMode;
+            state.qCount = 1;
+            state.evaluations = [];
+            renderScorecardRail();
+            startFreshQuestion(false);
+            closeMobileSidebar();
+          }
+        });
+      });
+
+      el.inputRole.addEventListener("change", () => {
+        state.role = el.inputRole.value.trim() || "Software Engineer";
+        savePrefs();
+        showToast(`Target role: ${state.role}`);
+      });
+
+      el.btnTimerToggle.addEventListener("click", toggleTimer);
+      el.btnTimerReset.addEventListener("click", resetTimer);
+      el.btnMic.addEventListener("click", toggleVoiceInput);
+
+      el.btnHint.addEventListener("click", () => {
+        if (!state.currentQuestion) return;
+        state.messages.push({
+          role: "coach",
+          type: "hint",
+          badge: "Coaching Hint",
+          subBadge: state.currentQuestion.topic,
+          text: state.currentQuestion.hint
+        });
+        renderMessages();
+      });
+
+      el.btnSample.addEventListener("click", () => {
+        if (!state.currentQuestion) return;
+        const lines = (state.currentQuestion.outline || []).map((l, i) => `${i + 1}. ${l}`).join("\n");
+        state.messages.push({
+          role: "coach",
+          type: "outline",
+          badge: "Model Answer Outline",
+          subBadge: state.currentQuestion.topic,
+          text: lines || "Structure your answer around context, approach, trade-offs, and measurable impact."
+        });
+        renderMessages();
+      });
+
+      el.btnProbe.addEventListener("click", askFollowUpProbe);
+      el.btnNextQ.addEventListener("click", advanceQuestion);
+
+      document.getElementById("btn-new-session").addEventListener("click", () => {
+        state.qCount = 1;
+        state.evaluations = [];
+        renderScorecardRail();
+        startFreshQuestion(false);
+        closeMobileSidebar();
+        showToast("Session reset");
+      });
+
+      el.answerInput.addEventListener("input", () => {
+        const w = countWords(el.answerInput.value);
+        el.wordCountPill.textContent = `${w} word${w === 1 ? "" : "s"}`;
+      });
+
+      el.answerInput.addEventListener("keydown", e => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          el.chatForm.requestSubmit();
+        }
+      });
+
+      el.chatForm.addEventListener("submit", handleSubmit);
+
+      // Settings modal
+      document.getElementById("btn-settings").addEventListener("click", () => {
+        el.selectProvider.value = state.provider;
+        el.inputApiKey.value = state.apiKey;
+        el.apiKeyWrap.classList.toggle("hidden", state.provider === "builtin");
+        el.modalSettings.classList.remove("hidden");
+      });
+      el.selectProvider.addEventListener("change", () => {
+        el.apiKeyWrap.classList.toggle("hidden", el.selectProvider.value === "builtin");
+      });
+      const closeSettings = () => el.modalSettings.classList.add("hidden");
+      document.getElementById("btn-close-settings").addEventListener("click", closeSettings);
+      document.getElementById("btn-cancel-settings").addEventListener("click", closeSettings);
+      document.getElementById("btn-save-settings").addEventListener("click", () => {
+        state.provider = el.selectProvider.value;
+        state.apiKey = el.inputApiKey.value.trim();
+        if (state.provider !== "builtin" && !state.apiKey) {
+          showToast("Enter an API key or switch to Built-in Coach.");
+          return;
+        }
+        savePrefs();
+        renderControls();
+        closeSettings();
+        showToast("Engine settings saved");
+      });
+
+      // Custom question modal
+      document.getElementById("btn-custom-q").addEventListener("click", () => {
+        el.inputCustomQ.value = "";
+        el.inputCustomKeywords.value = "";
+        el.modalCustom.classList.remove("hidden");
+        closeMobileSidebar();
+      });
+      const closeCustom = () => el.modalCustom.classList.add("hidden");
+      document.getElementById("btn-close-custom").addEventListener("click", closeCustom);
+      document.getElementById("btn-cancel-custom").addEventListener("click", closeCustom);
+      document.getElementById("btn-add-custom").addEventListener("click", () => {
+        const prompt = el.inputCustomQ.value.trim();
+        if (!prompt) {
+          showToast("Please enter a question prompt.");
+          return;
+        }
+        const signals = el.inputCustomKeywords.value
+          .split(",")
+          .map(s => s.trim())
+          .filter(Boolean);
+        const customQ = {
+          id: "custom-" + Date.now(),
+          topic: "Custom Question",
+          prompt,
+          signals: signals.length > 0 ? signals : ["approach", "trade-off", "result", "impact", "example"],
+          hint: "Break your response into context, concrete actions or design choices, trade-offs, and measurable results.",
+          probe: "What is the biggest risk or edge case in your approach, and how would you mitigate it?",
+          outline: [
+            "Clarify scope and constraints.",
+            "Walk through your concrete approach and why you chose it over alternatives.",
+            "Close with measurable impact, complexity, or next-step safeguards."
+          ]
+        };
+        state.currentQuestion = customQ;
+        state.qCount += 1;
+        resetTimer();
+        state.messages.push({
+          role: "coach",
+          badge: "Custom Question",
+          subBadge: state.role,
+          text: prompt
+        });
+        renderQuestionMeta();
+        renderMessages();
+        closeCustom();
+      });
+
+      // Debrief modal
+      document.getElementById("btn-debrief").addEventListener("click", openDebriefModal);
+      const closeDebrief = () => el.modalDebrief.classList.add("hidden");
+      document.getElementById("btn-close-debrief").addEventListener("click", closeDebrief);
+      document.getElementById("btn-done-debrief").addEventListener("click", closeDebrief);
+      document.getElementById("btn-copy-debrief").addEventListener("click", copyDebriefMarkdown);
+
+      // ---------- Init ----------
+      loadPrefs();
+      el.inputRole.value = state.role;
+      applyTheme();
+      renderScorecardRail();
+      startFreshQuestion(false);
+    })();
+  </script>
+</body>
+</html>
